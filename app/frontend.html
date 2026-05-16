@@ -1,0 +1,1348 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Coach Personale · Edmondo</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Mono:wght@400;500&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #0a0a0c;
+  --surface: #131318;
+  --surface-2: #1c1c24;
+  --line: #26262f;
+  --line-2: #353542;
+  --ink: #ffffff;
+  --muted: #9099a8;
+  --dim: #5e6573;
+  --accent: #4f8cff;
+  --accent-soft: rgba(79,140,255,0.12);
+  --accent-dark: #2563d6;
+  --green: #34d399;
+  --yellow: #fbbf24;
+  --red: #f87171;
+  --orange: #fb923c;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html, body { height: 100%; }
+body {
+  font-family: 'Inter', system-ui, -apple-system, sans-serif;
+  background: var(--bg);
+  color: var(--ink);
+  font-size: 14px;
+  line-height: 1.5;
+  overflow: hidden;
+}
+.serif { font-family: 'Instrument Serif', serif; font-style: italic; letter-spacing: -0.01em; }
+.mono { font-family: 'DM Mono', monospace; }
+.label { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); }
+.dim { color: var(--muted); }
+
+/* ============================ LAYOUT ============================ */
+.app {
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  height: 100vh;
+}
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  padding: 24px 14px;
+}
+.brand {
+  padding: 0 8px 24px;
+  border-bottom: 1px solid var(--line);
+}
+.brand-title { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 26px; line-height: 1; }
+.brand-sub { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+.nav { padding: 14px 0; flex: 1; display: flex; flex-direction: column; gap: 2px; }
+.nav-btn {
+  background: none; border: none; cursor: pointer; text-align: left;
+  font: inherit; color: var(--muted);
+  padding: 10px 12px; border-radius: 10px;
+  display: flex; align-items: center; gap: 10px;
+  transition: background 0.12s, color 0.12s;
+}
+.nav-btn:hover { background: var(--surface-2); color: var(--ink); }
+.nav-btn.active { background: var(--accent-soft); color: var(--accent); font-weight: 600; }
+.nav-ico { width: 18px; height: 18px; flex-shrink: 0; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.sidebar-footer { padding: 12px 8px 0; border-top: 1px solid var(--line); font-size: 11px; color: var(--dim); }
+.sidebar-footer .row { display: flex; align-items: center; gap: 6px; padding: 4px 0; }
+.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--dim); flex-shrink: 0; }
+.dot.ok { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.dot.warn { background: var(--yellow); }
+.dot.err { background: var(--red); }
+
+.main {
+  overflow-y: auto;
+  padding: 28px 36px 60px;
+}
+.main::-webkit-scrollbar { width: 6px; }
+.main::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+
+.page-header { margin-bottom: 24px; }
+.page-title { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 42px; line-height: 1.05; }
+.page-sub { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--muted); margin-top: 6px; }
+
+/* ============================ CARDS ============================ */
+.card {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 20px;
+}
+.card-title { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 22px; margin-bottom: 12px; letter-spacing: -0.01em; }
+.row-grid {
+  display: grid;
+  gap: 14px;
+  margin-bottom: 14px;
+}
+
+/* ============================ STATO TAB ============================ */
+.stat-strip {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.stat-big {
+  padding: 22px;
+  background: linear-gradient(135deg, var(--accent) 0%, #2952c8 100%);
+  color: white;
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.stat-big::before {
+  content: '';
+  position: absolute; top: -60px; right: -40px;
+  width: 200px; height: 200px;
+  background: radial-gradient(circle, rgba(255,255,255,0.18) 0%, transparent 65%);
+}
+.stat-big .label { color: rgba(255,255,255,0.85); }
+.stat-big-value { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 60px; line-height: 1; margin: 4px 0; letter-spacing: -0.03em; position: relative; }
+.stat-big-sub { font-family: 'DM Mono', monospace; font-size: 11px; opacity: 0.8; position: relative; }
+.stat-sm {
+  padding: 18px;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+}
+.stat-sm-value { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 32px; line-height: 1; margin-top: 6px; letter-spacing: -0.02em; }
+.stat-sm-sub { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; letter-spacing: 0.1em; text-transform: uppercase; }
+
+.ai-card {
+  background: linear-gradient(135deg, var(--accent-soft) 0%, rgba(79,140,255,0.04) 100%);
+  border: 1px solid rgba(79,140,255,0.28);
+  border-radius: 16px;
+  padding: 22px;
+  margin-bottom: 16px;
+  position: relative;
+  overflow: hidden;
+}
+.ai-card::before {
+  content: '';
+  position: absolute; top: -40px; right: -40px;
+  width: 160px; height: 160px;
+  background: radial-gradient(circle, rgba(79,140,255,0.18) 0%, transparent 65%);
+}
+.ai-head { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; position: relative; }
+.ai-spark {
+  width: 28px; height: 28px;
+  background: var(--accent); color: white;
+  border-radius: 8px;
+  display: flex; align-items: center; justify-content: center;
+}
+.ai-spark svg { width: 14px; height: 14px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.ai-title { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 20px; }
+.ai-badge { margin-left: auto; font-family: 'DM Mono', monospace; font-size: 9px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--accent); background: rgba(79,140,255,0.15); padding: 4px 8px; border-radius: 5px; }
+.ai-body { font-size: 14px; line-height: 1.65; position: relative; }
+.ai-body b { color: var(--accent); font-weight: 600; }
+
+.quick-ask {
+  margin-bottom: 24px;
+  position: relative;
+}
+.quick-ask-input {
+  width: 100%;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 14px 50px 14px 18px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+}
+.quick-ask-input:focus { outline: none; border-color: var(--accent); }
+.quick-ask-btn {
+  position: absolute;
+  right: 6px; top: 50%;
+  transform: translateY(-50%);
+  background: var(--accent);
+  color: white;
+  border: none;
+  width: 36px; height: 36px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+}
+.quick-ask-btn:hover { background: var(--accent-dark); }
+.quick-ask-btn svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2.4; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+
+/* ============================ ACTIVITIES ============================ */
+.activity-list { display: flex; flex-direction: column; gap: 8px; }
+.activity-item {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 16px 20px;
+  cursor: pointer;
+  display: flex; align-items: center; gap: 18px;
+  transition: border-color 0.15s, transform 0.1s;
+}
+.activity-item:hover { border-color: var(--line-2); }
+.activity-item:active { transform: scale(0.998); }
+.activity-icon {
+  width: 40px; height: 40px;
+  border-radius: 10px;
+  background: var(--surface-2);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--accent);
+  flex-shrink: 0;
+}
+.activity-icon svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; stroke-linecap: round; stroke-linejoin: round; }
+.activity-meta { flex: 1; min-width: 0; }
+.activity-date { font-family: 'DM Mono', monospace; font-size: 10px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--dim); }
+.activity-name { font-weight: 600; font-size: 15px; margin: 4px 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.activity-stats { display: flex; gap: 18px; font-family: 'DM Mono', monospace; font-size: 12px; color: var(--muted); flex-wrap: wrap; }
+.activity-stats b { color: var(--ink); font-weight: 500; }
+
+/* ============================ ACTIVITY DETAIL ============================ */
+.detail-page { max-width: 900px; }
+.detail-back {
+  background: none; border: none; cursor: pointer; font: inherit;
+  color: var(--accent); font-size: 14px;
+  display: flex; align-items: center; gap: 4px;
+  margin-bottom: 16px;
+  padding: 6px 0;
+}
+.detail-back:hover { color: white; }
+.detail-back svg { width: 16px; height: 16px; stroke: currentColor; stroke-width: 2; fill: none; }
+.detail-stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin: 16px 0;
+}
+.detail-stat-card { background: var(--surface); border: 1px solid var(--line); border-radius: 12px; padding: 14px; }
+.detail-stat-card .label { margin-bottom: 6px; }
+.detail-stat-card .value { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 28px; line-height: 1; letter-spacing: -0.02em; }
+.detail-stat-card .unit { font-family: 'DM Mono', monospace; font-size: 10px; color: var(--muted); margin-top: 4px; }
+
+/* ============================ CHAT ============================ */
+.chat-section { margin-top: 18px; }
+.chat-thread {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 18px;
+  min-height: 300px;
+  max-height: 65vh;
+  overflow-y: auto;
+  display: flex; flex-direction: column; gap: 14px;
+}
+.chat-thread::-webkit-scrollbar { width: 6px; }
+.chat-thread::-webkit-scrollbar-thumb { background: var(--line); border-radius: 3px; }
+.bubble {
+  max-width: 88%;
+  padding: 12px 16px;
+  border-radius: 14px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+.bubble.user {
+  align-self: flex-end;
+  background: var(--accent);
+  color: white;
+  border-bottom-right-radius: 4px;
+}
+.bubble.assistant {
+  align-self: flex-start;
+  background: var(--surface-2);
+  border: 1px solid var(--line);
+  border-bottom-left-radius: 4px;
+}
+.bubble.assistant b { color: var(--accent); font-weight: 600; }
+.bubble.empty {
+  align-self: center;
+  background: transparent;
+  color: var(--muted);
+  font-style: italic;
+  border: none;
+  padding: 30px 20px;
+  text-align: center;
+}
+.chat-input-bar {
+  margin-top: 12px;
+  display: flex;
+  gap: 8px;
+  align-items: flex-end;
+}
+.chat-input {
+  flex: 1;
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 12px 14px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+  resize: none;
+  min-height: 42px;
+  max-height: 200px;
+}
+.chat-input:focus { outline: none; border-color: var(--accent); }
+.chat-send {
+  background: var(--accent); color: white;
+  border: none;
+  border-radius: 12px;
+  padding: 0 18px;
+  height: 42px;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 600;
+}
+.chat-send:hover { background: var(--accent-dark); }
+.chat-send:disabled { background: var(--surface-2); color: var(--dim); cursor: not-allowed; }
+.chat-tools {
+  display: flex; gap: 8px;
+  margin-top: 8px;
+}
+.chat-tool {
+  background: var(--surface); border: 1px solid var(--line);
+  color: var(--muted); font: inherit; font-size: 12px;
+  padding: 6px 10px; border-radius: 8px;
+  cursor: pointer;
+}
+.chat-tool:hover { color: var(--ink); border-color: var(--line-2); }
+
+/* Typing indicator */
+.typing { display: inline-flex; gap: 4px; padding: 4px 0; }
+.typing span {
+  width: 6px; height: 6px; border-radius: 50%;
+  background: var(--accent);
+  animation: typingDot 1.2s infinite ease-in-out;
+}
+.typing span:nth-child(2) { animation-delay: 0.2s; }
+.typing span:nth-child(3) { animation-delay: 0.4s; }
+@keyframes typingDot { 0%, 80%, 100% { opacity: 0.3; transform: scale(0.8); } 40% { opacity: 1; transform: scale(1); } }
+
+/* ============================ SETTINGS ============================ */
+.settings-page { max-width: 600px; }
+.settings-section {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 20px;
+  margin-bottom: 16px;
+}
+.settings-section-title { font-family: 'DM Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 14px; }
+.settings-row { padding: 10px 0; }
+.settings-row + .settings-row { border-top: 1px solid var(--line); }
+.settings-row label { display: block; margin-bottom: 6px; font-size: 12px; color: var(--muted); }
+.settings-input {
+  width: 100%;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  padding: 10px 12px;
+  color: var(--ink);
+  font: inherit;
+  font-size: 14px;
+}
+.settings-input:focus { outline: none; border-color: var(--accent); }
+.btn {
+  background: var(--accent); color: white;
+  border: none; cursor: pointer;
+  padding: 10px 18px; border-radius: 10px;
+  font: inherit; font-weight: 600; font-size: 13px;
+}
+.btn:hover { background: var(--accent-dark); }
+.btn:disabled { background: var(--surface-2); color: var(--dim); cursor: not-allowed; }
+.btn.ghost { background: transparent; color: var(--muted); border: 1px solid var(--line); }
+.btn.ghost:hover { color: var(--ink); border-color: var(--line-2); }
+.btn.danger { background: transparent; color: var(--red); border: 1px solid var(--line); }
+.btn.danger:hover { border-color: var(--red); }
+
+.status-line { font-size: 12px; padding: 8px 12px; border-radius: 8px; margin-top: 10px; }
+.status-line.ok { background: rgba(52,211,153,0.1); color: var(--green); border: 1px solid rgba(52,211,153,0.3); }
+.status-line.err { background: rgba(248,113,113,0.1); color: var(--red); border: 1px solid rgba(248,113,113,0.3); }
+.status-line.info { background: var(--surface-2); color: var(--muted); }
+
+/* MODAL */
+.modal-bg {
+  position: fixed; inset: 0;
+  background: rgba(0,0,0,0.7);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 100;
+}
+.modal {
+  background: var(--surface);
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  padding: 28px;
+  max-width: 440px;
+  width: 92%;
+}
+.modal-title { font-family: 'Instrument Serif', serif; font-style: italic; font-size: 26px; margin-bottom: 8px; }
+.modal-text { color: var(--muted); margin-bottom: 18px; font-size: 13px; line-height: 1.5; }
+.modal-actions { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+
+.empty {
+  text-align: center;
+  padding: 60px 20px;
+  color: var(--muted);
+}
+.empty .serif { font-size: 28px; color: var(--ink); margin-bottom: 8px; }
+</style>
+</head>
+<body>
+
+<div class="app">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-title">Coach</div>
+      <div class="brand-sub">Edmondo · personal</div>
+    </div>
+    <nav class="nav" id="nav"></nav>
+    <div class="sidebar-footer" id="footer"></div>
+  </aside>
+
+  <main class="main" id="main">
+    <div class="empty">
+      <div class="serif">Caricamento…</div>
+    </div>
+  </main>
+
+</div>
+
+<div id="modalRoot"></div>
+
+<script>
+// =====================================================================
+// STATE
+// =====================================================================
+const state = {
+  tab: 'stato',           // stato | attivita | coach | impostazioni
+  config: null,
+  activities: [],
+  activityDetail: null,   // id when viewing detail
+  wellness: { wellness: [], sleep: [], training: [] },
+  monthly: [],
+  chatGeneral: [],
+  chatActivity: {},       // {activityId: [...]}
+  streaming: false,
+  loginPhase: null,       // null | 'waiting' | 'mfa' | 'ok' | 'error'
+  loginError: null,
+};
+
+// =====================================================================
+// API helpers
+// =====================================================================
+async function api(path, opts = {}) {
+  const r = await fetch(path, {
+    headers: { 'Content-Type': 'application/json' },
+    ...opts,
+  });
+  if (!r.ok) {
+    const t = await r.text();
+    throw new Error(t || r.statusText);
+  }
+  const ct = r.headers.get('content-type') || '';
+  return ct.includes('application/json') ? r.json() : r.text();
+}
+
+async function loadConfig() { state.config = await api('/api/config'); }
+async function loadActivities() {
+  const d = await api('/api/activities?limit=200');
+  state.activities = d.activities || [];
+}
+async function loadWellness() {
+  state.wellness = await api('/api/wellness?days=14');
+}
+async function loadMonthly() {
+  const d = await api('/api/monthly?months=12');
+  state.monthly = d.months || [];
+}
+async function loadChat(activityId) {
+  const url = activityId ? `/api/chat/history?activity_id=${activityId}` : '/api/chat/history';
+  const d = await api(url);
+  if (activityId) state.chatActivity[activityId] = d.messages || [];
+  else state.chatGeneral = d.messages || [];
+}
+
+// =====================================================================
+// FORMATTERS
+// =====================================================================
+function fmtPace(sec) {
+  if (!sec || !isFinite(sec)) return '—';
+  const m = Math.floor(sec / 60);
+  const s = Math.round(sec % 60);
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+function fmtDuration(sec) {
+  if (!sec) return '—';
+  sec = Math.round(sec);
+  const h = Math.floor(sec / 3600);
+  const m = Math.floor((sec % 3600) / 60);
+  const s = sec % 60;
+  if (h) return `${h}h${String(m).padStart(2, '0')}`;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+function fmtKm(m) {
+  if (!m) return '—';
+  return (m / 1000).toFixed(2);
+}
+function fmtDate(iso) {
+  if (!iso) return '—';
+  const d = new Date(iso);
+  if (isNaN(d)) return iso.slice(0, 10);
+  const days = ['Dom','Lun','Mar','Mer','Gio','Ven','Sab'];
+  const months = ['gen','feb','mar','apr','mag','giu','lug','ago','set','ott','nov','dic'];
+  return `${days[d.getDay()]} ${d.getDate()} ${months[d.getMonth()]} · ${String(d.getHours()).padStart(2,'0')}:${String(d.getMinutes()).padStart(2,'0')}`;
+}
+function fmtMonth(yyyymm) {
+  const [y, m] = yyyymm.split('-');
+  const months = ['gennaio','febbraio','marzo','aprile','maggio','giugno','luglio','agosto','settembre','ottobre','novembre','dicembre'];
+  return `${months[parseInt(m)-1]} ${y}`;
+}
+function escapeHtml(s) {
+  return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+function nl2br(s) { return escapeHtml(s).replace(/\n/g, '<br>').replace(/\*\*(.+?)\*\*/g, '<b>$1</b>'); }
+
+// =====================================================================
+// ICONS
+// =====================================================================
+const ICO = {
+  stato:    '<svg class="nav-ico" viewBox="0 0 24 24"><path d="M3 12h4l3-9 4 18 3-9h4"/></svg>',
+  attivita: '<svg class="nav-ico" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h10"/></svg>',
+  coach:    '<svg class="nav-ico" viewBox="0 0 24 24"><path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z"/></svg>',
+  impostazioni: '<svg class="nav-ico" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 01-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 008 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 01-2.83-2.83l.06-.06a1.65 1.65 0 00.33-1.82 1.65 1.65 0 00-1.51-1H2a2 2 0 010-4h.09A1.65 1.65 0 004.6 8a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 012.83-2.83l.06.06a1.65 1.65 0 001.82.33h0A1.65 1.65 0 0010 2.09V2a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 012.83 2.83l-.06.06a1.65 1.65 0 00-.33 1.82V8c.21.5.66.84 1.18.84H22a2 2 0 010 4h-.09c-.52 0-.97.34-1.18.84z"/></svg>',
+  run:      '<svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M5 22l4-8 2 2 3-1 1 5M14 9l-2 2-3-1 1-3 4 1 2 3-1 2"/></svg>',
+  bike:     '<svg viewBox="0 0 24 24"><circle cx="5" cy="17" r="4"/><circle cx="19" cy="17" r="4"/><path d="M5 17l4-9h4l3 9M12 8h4M9 5l1 3"/></svg>',
+  swim:     '<svg viewBox="0 0 24 24"><path d="M2 18c2 1 4-1 6-1s4 2 6 2 4-2 6-2 4 1 4 1M2 12c2 1 4-1 6-1s4 2 6 2 4-2 6-2 4 1 4 1"/><circle cx="18" cy="6" r="2"/></svg>',
+  walk:     '<svg viewBox="0 0 24 24"><circle cx="13" cy="4" r="2"/><path d="M7 22l4-10 3 2v6M11 14l-2-6 4-1 3 4"/></svg>',
+  generic:  '<svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3"/></svg>',
+  arrow:    '<svg viewBox="0 0 24 24"><path d="M5 12h14M13 5l7 7-7 7"/></svg>',
+  back:     '<svg viewBox="0 0 24 24" stroke-linecap="round" stroke-linejoin="round"><path d="M15 18l-6-6 6-6"/></svg>',
+  send:     '<svg viewBox="0 0 24 24"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>',
+  spark:    '<svg viewBox="0 0 24 24"><path d="M12 3v3M12 18v3M5.6 5.6l2.1 2.1M16.3 16.3l2.1 2.1M3 12h3M18 12h3M5.6 18.4l2.1-2.1M16.3 7.7l2.1-2.1"/></svg>',
+};
+
+function activityIcon(type) {
+  if (!type) return ICO.generic;
+  type = type.toLowerCase();
+  if (type.includes('run')) return ICO.run;
+  if (type.includes('cycl') || type.includes('bike')) return ICO.bike;
+  if (type.includes('swim')) return ICO.swim;
+  if (type.includes('walk') || type.includes('hike')) return ICO.walk;
+  return ICO.generic;
+}
+
+// =====================================================================
+// RENDER
+// =====================================================================
+function setTab(t) {
+  state.tab = t;
+  state.activityDetail = null;
+  render();
+}
+
+function renderSidebar() {
+  const items = [
+    { id: 'stato', label: 'Stato di forma' },
+    { id: 'attivita', label: 'Attività' },
+    { id: 'coach', label: 'Coach' },
+    { id: 'impostazioni', label: 'Impostazioni' },
+  ];
+  document.getElementById('nav').innerHTML = items.map(it =>
+    `<button class="nav-btn ${state.tab === it.id ? 'active' : ''}" onclick="setTab('${it.id}')">${ICO[it.id]}<span>${it.label}</span></button>`
+  ).join('');
+
+  const c = state.config || {};
+  const apiDot = c.has_api_key ? 'ok' : 'err';
+  const garminDot = c.has_garmin_session ? 'ok' : 'err';
+  const last = c.last_activity_sync ? new Date(c.last_activity_sync) : null;
+  const lastStr = last ? `${last.toLocaleDateString('it-IT', {day:'numeric',month:'short'})} ${String(last.getHours()).padStart(2,'0')}:${String(last.getMinutes()).padStart(2,'0')}` : 'mai';
+
+  document.getElementById('footer').innerHTML = `
+    <div class="row"><span class="dot ${apiDot}"></span> AI Coach</div>
+    <div class="row"><span class="dot ${garminDot}"></span> Garmin Connect</div>
+    <div class="row dim" style="margin-top:6px">Ultima sync: ${lastStr}</div>
+  `;
+}
+
+function render() {
+  renderSidebar();
+  const main = document.getElementById('main');
+  const c = state.config;
+  if (!c) { main.innerHTML = '<div class="empty"><div class="serif">Caricamento…</div></div>'; return; }
+
+  // PRIMO AVVIO: niente chiave API o niente sessione Garmin → forza setup
+  if (!c.has_api_key || !c.has_garmin_session) {
+    main.innerHTML = renderSetup();
+    bindSetup();
+    return;
+  }
+
+  if (state.activityDetail) {
+    main.innerHTML = renderActivityDetail(state.activityDetail);
+    bindActivityDetail();
+    return;
+  }
+
+  if (state.tab === 'stato') main.innerHTML = renderStato();
+  else if (state.tab === 'attivita') main.innerHTML = renderAttivita();
+  else if (state.tab === 'coach') { main.innerHTML = renderCoach(); bindCoach(); }
+  else if (state.tab === 'impostazioni') { main.innerHTML = renderImpostazioni(); bindImpostazioni(); }
+}
+
+// =====================================================================
+// SETUP (primo avvio)
+// =====================================================================
+function renderSetup() {
+  const c = state.config;
+  return `
+    <div class="page-header">
+      <div class="page-title">Benvenuto</div>
+      <div class="page-sub">configurazione iniziale</div>
+    </div>
+    <div class="settings-page">
+      <p style="margin-bottom: 24px; color: var(--muted); line-height: 1.6;">
+        Per cominciare collega il tuo account Garmin Connect e inserisci la chiave API Claude.
+        Entrambi vengono salvati <b style="color:var(--ink)">solo sul tuo Mac</b> nella cartella dell'app.
+      </p>
+
+      <div class="settings-section">
+        <div class="settings-section-title">1. Chiave API Claude</div>
+        ${c.has_api_key
+          ? `<div class="status-line ok">✓ Chiave configurata e funzionante</div>`
+          : `
+            <div class="settings-row">
+              <label>incolla la chiave che inizia con <span class="mono">sk-ant-...</span></label>
+              <input class="settings-input" id="apiKeyInput" type="password" placeholder="sk-ant-api03-...">
+            </div>
+            <button class="btn" id="saveApiKey">Salva chiave</button>
+            <div class="status-line info" id="apiKeyStatus" style="display:none"></div>
+          `}
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">2. Garmin Connect</div>
+        ${c.has_garmin_session
+          ? `<div class="status-line ok">✓ Collegato come ${escapeHtml(c.garmin_user || '')}</div>`
+          : `
+            <div class="settings-row">
+              <label>Email Garmin Connect</label>
+              <input class="settings-input" id="garminEmail" type="email" placeholder="${escapeHtml(state.config.garmin_user || 'tu@email.com')}">
+            </div>
+            <div class="settings-row">
+              <label>Password</label>
+              <input class="settings-input" id="garminPassword" type="password">
+            </div>
+            <button class="btn" id="loginGarmin">Accedi a Garmin</button>
+            <div class="status-line info" id="garminStatus" style="display:none"></div>
+          `}
+      </div>
+
+      ${c.has_api_key && c.has_garmin_session ? `
+        <div class="settings-section">
+          <div class="settings-section-title">3. Prima sincronizzazione</div>
+          <p class="dim" style="font-size:13px; margin-bottom:14px">
+            Scarico le ultime 50 attività e gli ultimi 14 giorni di sonno/wellness.
+            Per l'archivio completo, useremo l'export zip nella sezione Impostazioni.
+          </p>
+          <button class="btn" id="firstSync">Inizia sincronizzazione</button>
+          <div class="status-line info" id="syncStatus" style="display:none"></div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
+function bindSetup() {
+  const apiBtn = document.getElementById('saveApiKey');
+  if (apiBtn) apiBtn.addEventListener('click', saveApiKey);
+
+  const loginBtn = document.getElementById('loginGarmin');
+  if (loginBtn) loginBtn.addEventListener('click', startGarminLogin);
+
+  const syncBtn = document.getElementById('firstSync');
+  if (syncBtn) syncBtn.addEventListener('click', () => triggerSync('syncStatus'));
+}
+
+async function saveApiKey() {
+  const input = document.getElementById('apiKeyInput');
+  const status = document.getElementById('apiKeyStatus');
+  const btn = document.getElementById('saveApiKey');
+  const key = input.value.trim();
+  if (!key.startsWith('sk-ant-')) {
+    status.style.display = 'block';
+    status.className = 'status-line err';
+    status.textContent = "La chiave deve iniziare con 'sk-ant-'";
+    return;
+  }
+  btn.disabled = true;
+  status.style.display = 'block';
+  status.className = 'status-line info';
+  status.textContent = 'Verifica chiave in corso…';
+  try {
+    await api('/api/config/api_key', { method: 'POST', body: JSON.stringify({ api_key: key }) });
+    status.className = 'status-line ok';
+    status.textContent = '✓ Chiave valida e salvata';
+    await loadConfig();
+    setTimeout(render, 500);
+  } catch (e) {
+    status.className = 'status-line err';
+    status.textContent = String(e.message || e);
+    btn.disabled = false;
+  }
+}
+
+async function startGarminLogin() {
+  const email = document.getElementById('garminEmail').value.trim();
+  const password = document.getElementById('garminPassword').value;
+  const status = document.getElementById('garminStatus');
+  if (!email || !password) {
+    status.style.display = 'block';
+    status.className = 'status-line err';
+    status.textContent = 'Inserisci email e password.';
+    return;
+  }
+  status.style.display = 'block';
+  status.className = 'status-line info';
+  status.textContent = 'Connessione a Garmin…';
+  try {
+    const r = await api('/api/auth/garmin/start', { method: 'POST', body: JSON.stringify({ email, password }) });
+    await handleGarminStatus(r);
+  } catch (e) {
+    status.className = 'status-line err';
+    status.textContent = String(e.message || e);
+  }
+}
+
+async function handleGarminStatus(s) {
+  const status = document.getElementById('garminStatus');
+  if (s.status === 'ok') {
+    status.className = 'status-line ok';
+    status.textContent = '✓ Login riuscito';
+    await loadConfig();
+    setTimeout(render, 500);
+  } else if (s.status === 'error') {
+    status.className = 'status-line err';
+    status.textContent = 'Errore: ' + (s.error || 'sconosciuto');
+  } else if (s.status === 'needs_mfa') {
+    promptMfa();
+  } else {
+    // pending: aspetta
+    status.textContent = 'In corso…';
+    setTimeout(async () => {
+      const r = await api('/api/auth/garmin/status');
+      handleGarminStatus(r);
+    }, 1500);
+  }
+}
+
+function promptMfa() {
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-bg">
+      <div class="modal">
+        <div class="modal-title">Codice di verifica</div>
+        <div class="modal-text">Garmin ti ha inviato un codice via email o SMS. Inseriscilo qui.</div>
+        <input class="settings-input" id="mfaInput" placeholder="123456" autofocus>
+        <div class="modal-actions">
+          <button class="btn ghost" onclick="document.getElementById('modalRoot').innerHTML=''">Annulla</button>
+          <button class="btn" onclick="submitMfa()">Conferma</button>
+        </div>
+      </div>
+    </div>
+  `;
+  setTimeout(() => document.getElementById('mfaInput').focus(), 100);
+}
+
+async function submitMfa() {
+  const code = document.getElementById('mfaInput').value.trim();
+  if (!code) return;
+  document.getElementById('modalRoot').innerHTML = '';
+  try {
+    const r = await api('/api/auth/garmin/mfa', { method: 'POST', body: JSON.stringify({ code }) });
+    await handleGarminStatus(r);
+  } catch (e) {
+    const status = document.getElementById('garminStatus');
+    if (status) {
+      status.className = 'status-line err';
+      status.textContent = String(e.message || e);
+    }
+  }
+}
+
+async function triggerSync(statusElId) {
+  const status = document.getElementById(statusElId);
+  if (status) {
+    status.style.display = 'block';
+    status.className = 'status-line info';
+    status.textContent = 'Sincronizzazione in corso (può richiedere 1-2 minuti)…';
+  }
+  try {
+    const r = await api('/api/sync', { method: 'POST', body: JSON.stringify({ activities: 50, days: 14 }) });
+    if (status) {
+      status.className = 'status-line ok';
+      status.textContent = `✓ Sincronizzate ${r.activities_synced} attività, ${r.sleep} notti, ${r.wellness} giorni.`;
+    }
+    await loadConfig();
+    await loadActivities();
+    await loadWellness();
+    await loadMonthly();
+    setTimeout(() => { state.tab = 'stato'; render(); }, 800);
+  } catch (e) {
+    if (status) {
+      status.className = 'status-line err';
+      status.textContent = String(e.message || e);
+    }
+  }
+}
+
+// =====================================================================
+// STATO
+// =====================================================================
+function renderStato() {
+  const t = (state.wellness.training || [])[0] || {};
+  const w = (state.wellness.wellness || [])[0] || {};
+  const s = (state.wellness.sleep || [])[0] || {};
+  const thisMonth = new Date().toISOString().slice(0, 7);
+  const monthData = (state.monthly.find(x => x.month === thisMonth)) || { km: 0, n_activities: 0, hours: 0 };
+
+  const readiness = t.training_readiness;
+  const readinessLabel = readiness == null ? '—' :
+    readiness >= 75 ? 'pronto' :
+    readiness >= 50 ? 'discreto' :
+    readiness >= 25 ? 'recupero' : 'stanco';
+
+  return `
+    <div class="page-header">
+      <div class="page-title">Stato di forma</div>
+      <div class="page-sub">${new Date().toLocaleDateString('it-IT', { weekday:'long', day:'numeric', month:'long' })}</div>
+    </div>
+
+    <div class="stat-strip">
+      <div class="stat-big">
+        <div class="label">Training Readiness</div>
+        <div class="stat-big-value">${readiness != null ? readiness : '—'}</div>
+        <div class="stat-big-sub">${readinessLabel}${t.recovery_time_hours ? ` · ${Math.round(t.recovery_time_hours)}h recupero` : ''}</div>
+      </div>
+      <div class="stat-sm">
+        <div class="label">Body Battery</div>
+        <div class="stat-sm-value">${w.body_battery_high != null ? Math.round(w.body_battery_high) : '—'}</div>
+        <div class="stat-sm-sub">picco oggi</div>
+      </div>
+      <div class="stat-sm">
+        <div class="label">Sonno</div>
+        <div class="stat-sm-value">${s.score != null ? Math.round(s.score) : '—'}</div>
+        <div class="stat-sm-sub">${s.duration_sec ? fmtDuration(s.duration_sec) : 'punteggio'}</div>
+      </div>
+      <div class="stat-sm">
+        <div class="label">HRV notturno</div>
+        <div class="stat-sm-value">${s.avg_hrv != null ? Math.round(s.avg_hrv) : '—'}</div>
+        <div class="stat-sm-sub">ms</div>
+      </div>
+    </div>
+
+    <div class="ai-card">
+      <div class="ai-head">
+        <div class="ai-spark">${ICO.spark}</div>
+        <div class="ai-title">Coach · oggi</div>
+        <div class="ai-badge">analisi</div>
+      </div>
+      <div class="ai-body" id="quickInsight">
+        <div class="typing"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+
+    <div class="quick-ask">
+      <input class="quick-ask-input" id="quickAskInput" placeholder="Chiedi al coach… (es. 'come va il mio recupero?')" onkeydown="if(event.key==='Enter') quickAsk()">
+      <button class="quick-ask-btn" onclick="quickAsk()">${ICO.send}</button>
+    </div>
+
+    <div class="row-grid" style="grid-template-columns: 1fr 1fr;">
+      <div class="card">
+        <div class="card-title">Questo mese</div>
+        <div class="stat-big-value" style="font-size: 48px; color: var(--ink);">${(monthData.km || 0).toFixed(1)}</div>
+        <div class="label" style="margin-top:6px">chilometri · ${monthData.n_activities} attività · ${(monthData.hours || 0).toFixed(1)}h</div>
+        ${renderMonthlyBars()}
+      </div>
+
+      <div class="card">
+        <div class="card-title">Ultime attività</div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          ${(state.activities.slice(0, 5)).map(a => `
+            <div class="activity-item" style="padding:12px 14px" onclick="openActivity('${a.id}')">
+              <div class="activity-icon" style="width:34px;height:34px">${activityIcon(a.type)}</div>
+              <div class="activity-meta">
+                <div class="activity-date" style="font-size:9px">${fmtDate(a.start_time)}</div>
+                <div class="activity-name" style="font-size:13px">${escapeHtml(a.name || a.type || 'Attività')}</div>
+                <div class="activity-stats" style="font-size:11px">
+                  <span><b>${fmtKm(a.distance_m)}</b> km</span>
+                  <span>${fmtPace(a.avg_pace_sec)}/km</span>
+                  ${a.avg_hr ? `<span>${Math.round(a.avg_hr)} bpm</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('') || '<div class="empty"><div class="dim">Nessuna attività ancora.</div></div>'}
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function renderMonthlyBars() {
+  const months = (state.monthly || []).slice(0, 6).reverse();
+  if (months.length === 0) return '';
+  const max = Math.max(...months.map(m => m.km || 0)) || 1;
+  return `
+    <div style="display:flex;gap:6px;align-items:flex-end;height:60px;margin-top:18px;border-bottom:1px solid var(--line);padding-bottom:4px">
+      ${months.map(m => {
+        const h = Math.max(3, (m.km / max) * 56);
+        return `<div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:4px">
+          <div style="width:100%;height:${h}px;background:var(--accent);border-radius:3px 3px 0 0;opacity:0.85" title="${m.km.toFixed(1)} km"></div>
+        </div>`;
+      }).join('')}
+    </div>
+    <div style="display:flex;gap:6px;margin-top:4px;font-family:'DM Mono',monospace;font-size:9px;color:var(--muted)">
+      ${months.map(m => `<div style="flex:1;text-align:center">${m.month.slice(5,7)}/${m.month.slice(2,4)}</div>`).join('')}
+    </div>
+  `;
+}
+
+function quickAsk() {
+  const input = document.getElementById('quickAskInput');
+  const msg = input.value.trim();
+  if (!msg) return;
+  state.tab = 'coach';
+  render();
+  setTimeout(() => {
+    const ta = document.getElementById('chatInput');
+    if (ta) { ta.value = msg; sendChat(); }
+  }, 100);
+}
+
+async function refreshQuickInsight() {
+  const el = document.getElementById('quickInsight');
+  if (!el) return;
+  // (insight via streaming chat in background — chiediamo al coach una sintesi)
+  // Per ora chiediamo direttamente al chat endpoint con una richiesta di sintesi.
+  // Lo facciamo silenziosamente, senza salvarlo nella history.
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: "[sintesi automatica per dashboard] In massimo 3 frasi: come sto oggi, su cosa concentrarmi, un consiglio pratico per le prossime 24h." }),
+    });
+    if (!r.ok) { el.textContent = ''; return; }
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    let acc = '';
+    el.innerHTML = '';
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      acc += dec.decode(value);
+      el.innerHTML = nl2br(acc);
+    }
+  } catch (e) { el.textContent = '—'; }
+}
+
+// =====================================================================
+// ATTIVITÀ list
+// =====================================================================
+function renderAttivita() {
+  if (state.activities.length === 0) {
+    return `
+      <div class="page-header"><div class="page-title">Attività</div></div>
+      <div class="empty">
+        <div class="serif">Nessuna attività</div>
+        <p class="dim">Vai in Impostazioni → "Sincronizza ora" oppure carica l'archivio Garmin completo.</p>
+      </div>
+    `;
+  }
+  // Raggruppa per mese
+  const byMonth = {};
+  state.activities.forEach(a => {
+    const m = (a.start_time || '').slice(0, 7);
+    (byMonth[m] = byMonth[m] || []).push(a);
+  });
+  const months = Object.keys(byMonth).sort().reverse();
+
+  return `
+    <div class="page-header">
+      <div class="page-title">Attività</div>
+      <div class="page-sub">${state.activities.length} attività sincronizzate</div>
+    </div>
+    ${months.map(m => `
+      <div style="margin-bottom:24px">
+        <div class="label" style="margin-bottom:10px">${fmtMonth(m)} · ${byMonth[m].length} attività · ${(byMonth[m].reduce((s,a)=>s+(a.distance_m||0),0)/1000).toFixed(1)} km</div>
+        <div class="activity-list">
+          ${byMonth[m].map(a => `
+            <div class="activity-item" onclick="openActivity('${a.id}')">
+              <div class="activity-icon">${activityIcon(a.type)}</div>
+              <div class="activity-meta">
+                <div class="activity-date">${fmtDate(a.start_time)}</div>
+                <div class="activity-name">${escapeHtml(a.name || a.type || 'Attività')}</div>
+                <div class="activity-stats">
+                  <span><b>${fmtKm(a.distance_m)}</b> km</span>
+                  <span>${fmtDuration(a.moving_sec)}</span>
+                  <span>${fmtPace(a.avg_pace_sec)}/km</span>
+                  ${a.avg_hr ? `<span>${Math.round(a.avg_hr)} bpm</span>` : ''}
+                  ${a.elev_gain_m ? `<span>D+ ${Math.round(a.elev_gain_m)}m</span>` : ''}
+                </div>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `).join('')}
+  `;
+}
+
+function openActivity(id) {
+  state.activityDetail = id;
+  if (!state.chatActivity[id]) loadChat(id).then(render);
+  else render();
+}
+function closeActivity() {
+  state.activityDetail = null;
+  render();
+}
+
+// =====================================================================
+// ACTIVITY DETAIL
+// =====================================================================
+function renderActivityDetail(id) {
+  const a = state.activities.find(x => x.id === id);
+  if (!a) return `<div class="empty">Attività non trovata.</div>`;
+  const msgs = state.chatActivity[id] || [];
+
+  return `
+    <div class="detail-page">
+      <button class="detail-back" onclick="closeActivity()">${ICO.back} Tutte le attività</button>
+      <div class="page-title serif">${escapeHtml(a.name || a.type || 'Attività')}</div>
+      <div class="page-sub">${fmtDate(a.start_time)}${a.type ? ' · ' + a.type : ''}</div>
+
+      <div class="detail-stats">
+        <div class="detail-stat-card"><div class="label">distanza</div><div class="value">${fmtKm(a.distance_m)}</div><div class="unit">km</div></div>
+        <div class="detail-stat-card"><div class="label">passo</div><div class="value">${fmtPace(a.avg_pace_sec)}</div><div class="unit">/km moving</div></div>
+        <div class="detail-stat-card"><div class="label">tempo</div><div class="value">${fmtDuration(a.moving_sec)}</div><div class="unit">moving</div></div>
+        <div class="detail-stat-card"><div class="label">dislivello</div><div class="value">${a.elev_gain_m ? Math.round(a.elev_gain_m) : '—'}</div><div class="unit">m D+</div></div>
+        <div class="detail-stat-card"><div class="label">HR media</div><div class="value">${a.avg_hr ? Math.round(a.avg_hr) : '—'}</div><div class="unit">bpm · max ${a.max_hr ? Math.round(a.max_hr) : '—'}</div></div>
+        <div class="detail-stat-card"><div class="label">cadenza</div><div class="value">${a.avg_cadence ? Math.round(a.avg_cadence) : '—'}</div><div class="unit">spm</div></div>
+        <div class="detail-stat-card"><div class="label">training effect</div><div class="value">${a.aerobic_te != null ? a.aerobic_te.toFixed(1) : '—'}</div><div class="unit">aerobico</div></div>
+        <div class="detail-stat-card"><div class="label">calorie</div><div class="value">${a.calories ? Math.round(a.calories) : '—'}</div><div class="unit">kcal</div></div>
+      </div>
+
+      <div class="chat-section">
+        <div class="ai-head">
+          <div class="ai-spark">${ICO.spark}</div>
+          <div class="ai-title">Coach · questa attività</div>
+        </div>
+        <div class="chat-thread" id="chatThread">${renderChatMessages(msgs, "Chiedi al coach di analizzare questa attività…")}</div>
+        <div class="chat-input-bar">
+          <textarea class="chat-input" id="chatInput" placeholder="Cosa vuoi sapere su questa sessione?" rows="1"></textarea>
+          <button class="chat-send" id="chatSend">Invia</button>
+        </div>
+        <div class="chat-tools">
+          <button class="chat-tool" onclick="suggestActivity('Analizza questa attività: tipo di workout, qualità, cosa è andato bene e cosa no.')">Analizza la sessione</button>
+          <button class="chat-tool" onclick="suggestActivity('Confronta con le mie ultime corse simili. Sto migliorando?')">Confronta</button>
+          <button class="chat-tool" onclick="suggestActivity('Cosa dovrei fare nei prossimi 2 giorni dopo questa?')">Prossimi giorni</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+function bindActivityDetail() {
+  const send = document.getElementById('chatSend');
+  const input = document.getElementById('chatInput');
+  if (send) send.addEventListener('click', sendChat);
+  if (input) input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+}
+
+function suggestActivity(text) {
+  const input = document.getElementById('chatInput');
+  if (input) { input.value = text; sendChat(); }
+}
+
+// =====================================================================
+// COACH (chat generale)
+// =====================================================================
+function renderCoach() {
+  const msgs = state.chatGeneral;
+  return `
+    <div class="page-header">
+      <div class="page-title">Coach</div>
+      <div class="page-sub">chat completa sul tuo stato di forma</div>
+    </div>
+    <div class="chat-thread" id="chatThread">${renderChatMessages(msgs, "Chiedi al coach qualsiasi cosa sul tuo allenamento, recupero, sonno, nutrizione.")}</div>
+    <div class="chat-input-bar">
+      <textarea class="chat-input" id="chatInput" placeholder="Scrivi al coach…" rows="1"></textarea>
+      <button class="chat-send" id="chatSend">Invia</button>
+    </div>
+    <div class="chat-tools">
+      <button class="chat-tool" onclick="suggestCoach('Come va il mio stato di forma in questo momento?')">Stato attuale</button>
+      <button class="chat-tool" onclick="suggestCoach('Analisi del mio sonno e recupero ultimi 7 giorni')">Sonno & recupero</button>
+      <button class="chat-tool" onclick="suggestCoach('Consigli di nutrizione per la settimana')">Nutrizione</button>
+      <button class="chat-tool" onclick="suggestCoach('Cosa dovrei allenare nei prossimi 7 giorni?')">Piano settimana</button>
+      <button class="chat-tool" onclick="if(confirm('Cancellare la chat?')){clearChat()}">Pulisci chat</button>
+    </div>
+  `;
+}
+
+function bindCoach() {
+  const send = document.getElementById('chatSend');
+  const input = document.getElementById('chatInput');
+  if (send) send.addEventListener('click', sendChat);
+  if (input) input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendChat(); }
+  });
+}
+
+function suggestCoach(text) {
+  const input = document.getElementById('chatInput');
+  if (input) { input.value = text; sendChat(); }
+}
+
+function renderChatMessages(msgs, placeholder) {
+  if (!msgs || msgs.length === 0) {
+    return `<div class="bubble empty">${escapeHtml(placeholder)}</div>`;
+  }
+  return msgs.map(m =>
+    `<div class="bubble ${m.role}">${m.role === 'assistant' ? nl2br(m.content) : escapeHtml(m.content)}</div>`
+  ).join('');
+}
+
+async function sendChat() {
+  if (state.streaming) return;
+  const input = document.getElementById('chatInput');
+  const thread = document.getElementById('chatThread');
+  const send = document.getElementById('chatSend');
+  const text = input.value.trim();
+  if (!text) return;
+
+  const activityId = state.activityDetail;
+  const list = activityId ? (state.chatActivity[activityId] = state.chatActivity[activityId] || []) : state.chatGeneral;
+
+  list.push({ role: 'user', content: text });
+  list.push({ role: 'assistant', content: '' });
+  thread.innerHTML = renderChatMessages(list);
+  thread.scrollTop = thread.scrollHeight;
+  input.value = '';
+  state.streaming = true;
+  send.disabled = true;
+
+  try {
+    const r = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message: text, activity_id: activityId || null }),
+    });
+    if (!r.ok) throw new Error(await r.text() || r.statusText);
+    const reader = r.body.getReader();
+    const dec = new TextDecoder();
+    let acc = '';
+    while (true) {
+      const { value, done } = await reader.read();
+      if (done) break;
+      acc += dec.decode(value);
+      list[list.length - 1].content = acc;
+      thread.innerHTML = renderChatMessages(list);
+      thread.scrollTop = thread.scrollHeight;
+    }
+  } catch (e) {
+    list[list.length - 1].content = '⚠️ Errore: ' + (e.message || e);
+    thread.innerHTML = renderChatMessages(list);
+  } finally {
+    state.streaming = false;
+    send.disabled = false;
+    input.focus();
+  }
+}
+
+async function clearChat() {
+  const activityId = state.activityDetail;
+  const url = activityId ? `/api/chat?activity_id=${activityId}` : '/api/chat';
+  await api(url, { method: 'DELETE' });
+  if (activityId) state.chatActivity[activityId] = [];
+  else state.chatGeneral = [];
+  render();
+}
+
+// =====================================================================
+// IMPOSTAZIONI
+// =====================================================================
+function renderImpostazioni() {
+  const c = state.config;
+  return `
+    <div class="page-header">
+      <div class="page-title">Impostazioni</div>
+    </div>
+    <div class="settings-page">
+      <div class="settings-section">
+        <div class="settings-section-title">Sincronizzazione</div>
+        <p class="dim" style="font-size:13px;margin-bottom:12px">
+          Ultima sync attività: ${c.last_activity_sync ? new Date(c.last_activity_sync).toLocaleString('it-IT') : 'mai'}.<br>
+          Ultima sync sonno/wellness: ${c.last_daily_sync ? new Date(c.last_daily_sync).toLocaleString('it-IT') : 'mai'}.
+        </p>
+        <button class="btn" id="syncNow">Sincronizza ora</button>
+        <div class="status-line info" id="syncStatusBtn" style="display:none"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Import archivio Garmin</div>
+        <p class="dim" style="font-size:13px;margin-bottom:12px">
+          Carica il file zip scaricato da "Esporta i tuoi dati" su Garmin Connect.
+          Importa TUTTO lo storico in una volta sola. Può richiedere 5-15 minuti per archivi grandi.
+        </p>
+        <input type="file" id="importZipFile" accept=".zip" style="display:none">
+        <button class="btn" onclick="document.getElementById('importZipFile').click()">Scegli file .zip</button>
+        <span class="dim" style="margin-left:10px;font-size:12px" id="importZipName"></span>
+        <div class="status-line info" id="importStatus" style="display:none"></div>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Connessioni</div>
+        <p class="dim" style="font-size:13px;margin-bottom:8px">
+          ${c.has_garmin_session ? `Garmin: collegato come <b>${escapeHtml(c.garmin_user || '')}</b>` : 'Garmin: non collegato'}
+        </p>
+        <p class="dim" style="font-size:13px;margin-bottom:12px">
+          ${c.has_api_key ? 'AI Coach: chiave Claude configurata' : 'AI Coach: chiave non configurata'}
+        </p>
+        <button class="btn ghost" onclick="logoutGarmin()">Disconnetti Garmin</button>
+        <button class="btn ghost" onclick="changeApiKey()">Cambia chiave API</button>
+      </div>
+
+      <div class="settings-section">
+        <div class="settings-section-title">Dati</div>
+        <p class="dim" style="font-size:13px;margin-bottom:12px">
+          Attività: <b>${c.db_stats?.activities || 0}</b> · Notti di sonno: <b>${c.db_stats?.sleep_nights || 0}</b> · Giorni wellness: <b>${c.db_stats?.wellness_days || 0}</b> · Training: <b>${c.db_stats?.training_days || 0}</b>
+        </p>
+      </div>
+    </div>
+  `;
+}
+
+function bindImpostazioni() {
+  const syncBtn = document.getElementById('syncNow');
+  if (syncBtn) syncBtn.addEventListener('click', () => triggerSync('syncStatusBtn'));
+  const fileInput = document.getElementById('importZipFile');
+  if (fileInput) fileInput.addEventListener('change', importZip);
+}
+
+async function importZip(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  document.getElementById('importZipName').textContent = file.name + ' · ' + (file.size / 1024 / 1024).toFixed(1) + ' MB';
+  const status = document.getElementById('importStatus');
+  status.style.display = 'block';
+  status.className = 'status-line info';
+  status.textContent = 'Caricamento e importazione in corso (5-15 min)…';
+  const fd = new FormData();
+  fd.append('file', file);
+  try {
+    const r = await fetch('/api/import/zip', { method: 'POST', body: fd });
+    if (!r.ok) throw new Error(await r.text());
+    const result = await r.json();
+    status.className = 'status-line ok';
+    status.textContent = `✓ Importate ${result.activities} attività, ${result.sleep} notti, ${result.wellness} giorni wellness.`;
+    await loadConfig();
+    await loadActivities();
+    await loadWellness();
+    await loadMonthly();
+  } catch (err) {
+    status.className = 'status-line err';
+    status.textContent = String(err.message || err);
+  }
+}
+
+async function logoutGarmin() {
+  if (!confirm('Disconnettere Garmin? Dovrai rifare il login (con MFA).')) return;
+  await api('/api/auth/garmin/logout', { method: 'POST' });
+  await loadConfig();
+  render();
+}
+
+function changeApiKey() {
+  document.getElementById('modalRoot').innerHTML = `
+    <div class="modal-bg">
+      <div class="modal">
+        <div class="modal-title">Cambia chiave API</div>
+        <div class="modal-text">Incolla la nuova chiave Claude.</div>
+        <input class="settings-input" id="newApiKey" placeholder="sk-ant-api03-..." type="password">
+        <div class="status-line info" id="newApiKeyStatus" style="display:none"></div>
+        <div class="modal-actions">
+          <button class="btn ghost" onclick="document.getElementById('modalRoot').innerHTML=''">Annulla</button>
+          <button class="btn" onclick="submitNewApiKey()">Salva</button>
+        </div>
+      </div>
+    </div>
+  `;
+}
+
+async function submitNewApiKey() {
+  const key = document.getElementById('newApiKey').value.trim();
+  const status = document.getElementById('newApiKeyStatus');
+  status.style.display = 'block';
+  status.className = 'status-line info';
+  status.textContent = 'Verifica…';
+  try {
+    await api('/api/config/api_key', { method: 'POST', body: JSON.stringify({ api_key: key }) });
+    document.getElementById('modalRoot').innerHTML = '';
+    await loadConfig();
+    render();
+  } catch (e) {
+    status.className = 'status-line err';
+    status.textContent = String(e.message || e);
+  }
+}
+
+// =====================================================================
+// INIT
+// =====================================================================
+async function init() {
+  try {
+    await loadConfig();
+    if (state.config.has_garmin_session) {
+      await Promise.all([loadActivities(), loadWellness(), loadMonthly(), loadChat()]);
+    }
+    render();
+    // refresh quick insight dopo render se siamo nello stato
+    setTimeout(() => {
+      if (state.tab === 'stato' && state.config.has_api_key && state.config.has_garmin_session) {
+        refreshQuickInsight();
+      }
+    }, 300);
+  } catch (e) {
+    document.getElementById('main').innerHTML = `<div class="empty"><div class="serif">Errore di avvio</div><p class="dim">${escapeHtml(String(e.message || e))}</p></div>`;
+  }
+}
+
+init();
+</script>
+</body>
+</html>
